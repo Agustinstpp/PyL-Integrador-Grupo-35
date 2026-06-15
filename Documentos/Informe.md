@@ -1,9 +1,9 @@
 #Informe Técnico — Trabajo Práctico Integrador 2026
 **Grupo 35**
 
-# FASE 2 — Integración de Quicklisp y cl-json
+#FASE 2- Integración de Quicklisp y cl-json
 
-## Introducción
+##Introducción
 En esta fase se incorporó al sistema de semáforo una librería externa a través del gestor de paquetes Quicklisp, con el objetivo de eliminar los valores de temporización fijos del código fuente y reemplazarlos por una configuración dinámica leída desde un archivo JSON externo.
 
 La librería seleccionada fue `cl-json`, que provee funcionalidades de parseo y serialización del formato JSON dentro del entorno Common Lisp.
