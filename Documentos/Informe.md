@@ -143,7 +143,9 @@ El nombre TIMER está reservado por el paquete interno SB-EXT de SBCL. Para evit
 Bitácora de Depuración (Bugs Detectados)
 Bug de Bloqueo de Paquete: Tratamiento del símbolo reservado TIMER en SBCL solucionado mediante el renombrado a semaforo-en.
 Bug de Mutación de Estado: Descarte del prototipo inicial con variables globales (defvar y setf) para pasar a un flujo puramente parametrizado por argumentos.
+
 FASE 3 — Estudio Comparativo: Scheme
+
 Introducción a Scheme e Impacto Industrial
 Scheme es un dialecto de la familia de lenguajes Lisp, co-creado por Guy L. Steele y Gerald Jay Sussman en los años 70. Se caracteriza por su enfoque en el minimalismo conceptual, una especificación sintáctica sumamente reducida y un diseño elegante.
 A nivel industrial, Scheme se utiliza principalmente en:
