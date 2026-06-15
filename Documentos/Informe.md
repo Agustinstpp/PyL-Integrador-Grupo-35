@@ -151,14 +151,27 @@ Scheme es un dialecto de la familia de lenguajes Lisp, co-creado por Guy L. Stee
 A nivel industrial, Scheme se utiliza principalmente en:
 Educación y Computación Académica: Es el lenguaje insignia para la enseñanza de la estructura e interpretación de programas informáticos (como en el célebre libro SICP del MIT).
 Sistemas de Extensión y Scripting: Su variante GNU Guile es el lenguaje oficial de extensión del proyecto GNU, utilizado para configurar entornos del sistema.
-Empresas Destacadas: Compañías como Naughty Dog han utilizado variantes basadas en Scheme para el scripting de mecánicas y comportamientos de IA en videojuegos (como la saga Crash Bandicoot).
-Ejes Comparativos Analíticos
+Empresas Destacadas: Compañías como Naughty Dog han utilizado variantes basadas en Scheme para el scripting de mecánicas y comportamientos de IA en videojuegos (como la saga Crash Bandicoot). 
+
+Implementación realizada
+Como parte de la Fase 3 se reimplementaron en Scheme las funciones transicion y semaforo-en originalmente desarrolladas en Common Lisp.
+La función transicion mantiene la lógica de cambio de estados del semáforo utilizando la estructura cond y el predicado eq?. Por su parte, semaforo-en recibe un timestamp y una configuración externa, calculando mediante la funcion modulo qué color debe encontrarse activo en un instante determinado.
+Durante la migración se observó que la sintaxis de Scheme resulta muy similar a la de Common Lisp, por lo que los principales cambios se concentraron en la adaptación de ciertas primitivas y convenciones del lenguaje.
+
 1. Espacio de Nombres: Lisp-2 vs. Lisp-1 y la omisión de funcall
-Common Lisp es clasificado como un Lisp-2, lo que significa que las funciones y las variables residen en espacios de nombres (namespaces) separados. Por ende, para pasar una función como argumento en Common Lisp se debe usar el operador #'' para obtener el objeto función y, posteriormente, invocarlo mediante la primitiva funcall.
-Por el contrario, Scheme es un Lisp-1: las funciones y las variables comparten el mismo espacio de nombres idéntico. En Scheme, el identificador de una función es tratado exactamente igual que cualquier otra variable que contiene un valor. Por esta razón técnica, no hace falta utilizar funcall ni el operador #''. Para ejecutar una función recibida como argumento, basta con colocar el símbolo en la primera posición de una lista evaluable: (fun_argumento datos).
+Common Lisp es clasificado como un Lisp-2, lo que significa que las funciones y las variables residen en espacios de nombres (namespaces) separados. Por ende, para pasar una función como argumento en Common Lisp se debe usar el operador #' para obtener el objeto función y, posteriormente, invocarlo mediante la primitiva funcall.
+Por el contrario, Scheme es un Lisp-1: las funciones y las variables comparten un mismo espacio de nombres. Por ello, una función puede utilizarse como valor sin necesidad de operadores adicionales. En Scheme, el identificador de una función es tratado exactamente igual que cualquier otra variable que contiene un valor. Por esta razón técnica, no hace falta utilizar funcall ni el operador #'. Para ejecutar una función recibida como argumento, basta con colocar el símbolo en la primera posición de una lista evaluable: (fun_argumento datos).
+Comparación sintáctica observada
+Durante la migración se identificaron algunas diferencias sintácticas entre ambos lenguajes:
+* Common Lisp utiliza defun para definir funciones, mientras que Scheme utiliza define.
+* Common Lisp emplea eq para comparar símbolos y Scheme utiliza eq?.
+* La operación módulo se expresa mediante mod en Common Lisp y modulo en Scheme.
+* Common Lisp pertenece a la categoría Lisp-2, mientras que Scheme es Lisp-1.
+Estas diferencias no modifican la lógica del programa, pero sí requieren adaptar la sintaxis al momento de realizar la migración.
+
 2. Optimización de Llamada de Cola (Tail Call Optimization - TCO)
 Por especificación oficial del estándar de Scheme, todos los compiladores e intérpretes están obligados a implementar TCO. Esto significa que si una función realiza una llamada recursiva como su última acción absoluta (el resultado de la llamada no requiere cálculos adicionales pendientes en el marco de la pila), el entorno de Scheme no añade un nuevo marco a la pila de ejecución, sino que reutiliza el marco actual.
-En nuestra función semaforo-en de solucion.scm, estructuramos el flujo de datos utilizando la macro de enlace secuencial let*. Al evaluar las ligaduras internas de los tiempos dinámicos extraídos de la lista de asociación, la expresión condicional cond resuelve el color de forma atómica y directa en sus cláusulas de salida. Si hubiésemos necesitado un ciclo continuo de simulación a través del tiempo, la estructura recursiva se habría diseñado de la siguiente manera para garantizar que el compilador no agote la pila de memoria (Stack Overflow):
+En nuestra función semaforo-en de solucion.scm se utiliza let* para obtener los tiempos de cada color y calcular el estado correspondiente según el instante recibido. Al evaluar las ligaduras internas de los tiempos dinámicos extraídos de la lista de asociación, la expresión condicional cond resuelve el color de forma atómica y directa en sus cláusulas de salida. Si hubiésemos necesitado un ciclo continuo de simulación a través del tiempo, la estructura recursiva se habría diseñado de la siguiente manera para garantizar que el compilador no agote la pila de memoria (Stack Overflow):
 Scheme
 (define (bucle-simulacion-semaforo timestamp config)
   ;; La llamada recursiva ocurre al final sin operaciones pendientes fuera de ella
@@ -167,3 +180,9 @@ Scheme
 Bitácora de Depuración en la Migración
 Bug del Predicado de Igualdad de Símbolos: Error de concordancia resuelto al cambiar el operador primitivo eq de Common Lisp por el predicado nativo eq? requerido por el estándar Scheme.
 Bug de Keywords JSON en la Alist: Conflicto de tipos resuelto al reemplazar la sintaxis de claves con dos puntos (:rojo) por símbolos puros ('rojo, 'verde) para asegurar el correcto funcionamiento de assoc en la suite de Scheme.
+
+Conclusión
+Durante la implementación en Scheme se pudo observar que Common Lisp y Scheme comparten gran parte de los conceptos fundamentales de la familia Lisp, especialmente el uso intensivo de listas, funciones y estructuras condicionales.
+La migración de las funciones desarrolladas en Common Lisp pudo realizarse con cambios relativamente pequeños, centrados principalmente en diferencias sintácticas y en el modelo de espacios de nombres utilizado por cada lenguaje.
+Esta experiencia permitió comprender mejor las similitudes y diferencias entre ambos lenguajes, así como reforzar conceptos relacionados con programación funcional e inmutabilidad de datos.
+
