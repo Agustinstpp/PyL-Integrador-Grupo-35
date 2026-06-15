@@ -195,3 +195,13 @@ ese momento. El nombre sigue la convención de Common Lisp de separar palabras c
 (semaforo-en 91 config)   ; → VERDE
 
 Se lee naturalmente como: "el color del semaforo en el tiempo 91".
+
+## Fase 3 — Estudio Comparativo: Scheme
+
+### Introducción a Scheme e Impacto Industrial
+[cite_start]Scheme es un dialecto de la familia de lenguajes Lisp, co-creado por Guy L. Steele y Gerald Jay Sussman en los años 70[cite: 49]. [cite_start]Se caracteriza por su enfoque en el minimalismo conceptual, una especificación sintáctica sumamente reducida y un diseño elegante[cite: 49]. 
+
+A nivel industrial, Scheme se utiliza principalmente en:
+* **Educación y Computación Académica:** Es el lenguaje insignia para la enseñanza de la estructura e interpretación de programas informáticos (como en el célebre libro SICP del MIT).
+* **Sistemas de Extensión y Scripting:** Su variante *GNU Guile* es el lenguaje oficial de extensión del proyecto GNU, utilizado para configurar entornos del sistema y herramientas de desarrollo.
+* **Empresas Destacadas:** Compañías como **Naughty Dog** han utilizado variantes basadas en Scheme para el scripting de mecánicas y comportamientos de IA en videojuegos aclamados (como la saga *Crash Bandicoot* y *Jak and Daxter*).
