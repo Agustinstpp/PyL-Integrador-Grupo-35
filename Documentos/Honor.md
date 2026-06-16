@@ -63,7 +63,7 @@ Marque con una **X** la opción que mejor describa su situación para cada compo
 #### **3\. Redacción del Informe y Respuestas Teóricas**
 
 * \[ \] **Autoría Propia:** Las explicaciones de los conceptos de los lenguajes y el análisis comparativo reflejan nuestras propias conclusiones conceptuales.  
-* \[ \] **Redacción Asistida / Generada:** La IA redactó o fundamentó las respuestas teóricas basadas en prompts conceptuales proporcionados por el grupo.  
+* \[X] **Redacción Asistida / Generada:** La IA redactó o fundamentó las respuestas teóricas basadas en prompts conceptuales proporcionados por el grupo.  
 * \[ \] Generación completa por IA
 ---
 ### **👤 Integrante 4: \[Axel Gabriel Nuñez\] \- Usuario GitHub: \[@axeel-nunezz\]**
