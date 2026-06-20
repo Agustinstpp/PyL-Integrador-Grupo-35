@@ -51,6 +51,27 @@
       ((< ciclo (+ time-rojo time-intermitente time-verde time-intermitente)) 'verde-intermitente)
       ((< ciclo (+ time-rojo time-intermitente time-verde time-intermitente time-amarillo)) 'amarillo)
       (else 'amarillo-intermitente))))
+;; ========================================================
+;; FUNCIÓN: informe
+;; NATURALEZA: Impura (Efectos secundarios de escritura en archivo)
+;; ESTRATEGIA: Recursiva de Cola (Optimización TCO requerida por especificación)
+;; IMPACTO: No destructiva
+;; ========================================================
+(define (informe datos)
+  (call-with-output-file "informe-ejecucion-semaforo.txt"
+    (lambda (port)
+      (display "Informe de Ejecución del Sistema Semafórico\n" port)
+      (display "=========================================\n" port)
+      
+      ;; Implementación recursiva de cola (iteración funcional)
+      (let loop ((lista datos))
+        (if (not (null? lista))
+            (begin
+              (display (car lista) port)
+              (newline port)
+              (loop (cdr lista)))))
+              
+      (display "\n --- Fin del Informe ---" port))))
 
 ;; ========================================================
 ;; PRUEBAS SUGERIDAS
