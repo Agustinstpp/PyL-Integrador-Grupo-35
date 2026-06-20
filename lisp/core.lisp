@@ -57,7 +57,7 @@
 )
 
 ;==============================================================
-;; FUNCION: semaforo-en
+;; FUNCION: timer
 ;; NATURALEZA: Pura
 ;; ESTRATEGIA: Uso de operador MOD sobre duracion dinamica
 ;; IMPACTO: No destructiva
@@ -78,7 +78,7 @@
 )
 
 ;==============================================================
-;; FUNCION: mostrarCambio
+;; FUNCION: mostrar-cambio
 ;; NATURALEZA: Impura
 ;; ESTRATEGIA: Salida por pantalla
 ;; IMPACTO: No destructiva
@@ -93,7 +93,7 @@
 )
 
 ;==============================================================
-;; FUNCION: duracionCiclo
+;; FUNCION: duracion-ciclo
 ;; NATURALEZA: Pura
 ;; ESTRATEGIA: Suma de tiempos obtenidos dinamicamente del config
 ;; IMPACTO: No destructiva
@@ -106,7 +106,7 @@
 )
 
 ;==============================================================
-;; FUNCION: recomendacionCiclo
+;; FUNCION: recomendacion-ciclo
 ;; NATURALEZA: Pura
 ;; ESTRATEGIA: Condicional
 ;; IMPACTO: No destructiva
@@ -124,7 +124,7 @@
 )
 
 ;==============================================================
-;; FUNCION: ciclosPorTiempo
+;; FUNCION: ciclos-por-tiempo 
 ;; NATURALEZA: Pura
 ;; ESTRATEGIA: Aritmetica simple sobre duracion dinamica
 ;; IMPACTO: No destructiva
@@ -136,7 +136,7 @@
 )
 
 ;==============================================================
-;; FUNCION: distribucionHora
+;; FUNCION: distribucion-hora
 ;; NATURALEZA: Pura
 ;; ESTRATEGIA: Calculo porcentual sobre tiempos dinamicos
 ;; IMPACTO: No destructiva
