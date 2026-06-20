@@ -14,11 +14,11 @@
 ;;==============================================================
 
 ;; ---- Carga de la configuracion desde el archivo JSON --------
-(defvar *config* (cargar-config "config.json"))
+(defvar config (cargar-config "config.json"))
 
 (format t "~%=============================================~%")
 (format t "  EJEMPLOS DE USO - SISTEMA DE SEMAFOROS~%")
-(format t "  Configuracion cargada: ~A~%" *config*)
+(format t "  Configuracion cargada: ~A~%" config)
 (format t "=============================================~%")
 
 
@@ -69,318 +69,318 @@
 
 
 ;;==============================================================
-;; REQUERIMIENTO 2: semaforo-en (timer)
-;; Funcion: (semaforo-en timestamp config)
-;; Ciclo con config por defecto: Rojo=90s, Verde=120s, Amarillo=6s
-;; Total ciclo = 216s
-;; Rango rojo:     0 a 89
-;; Rango verde:   90 a 209
-;; Rango amarillo: 210 a 215
+;; REQUERIMIENTO 2: timer (timer)
+;; Funcion: (timer timestamp config)
+;; Ciclo con config por defecto: Rojo=93s, Verde=123s, Amarillo=9s
+;; Total ciclo = 225s
+;; Rango rojo:     0 a 92
+;; Rango verde:   93 a 215
+;; Rango amarillo: 216 a 224
 ;;==============================================================
 
-(format t "~%--- REQUERIMIENTO 2: semaforo-en (timer) ---~%~%")
+(format t "~%--- REQUERIMIENTO 2: timer (timer) ---~%~%")
 
 ;; --- Funcionamiento normal ---
 ;; Timestamp 0 -> inicio del ciclo -> rojo
-(format t "Ejemplo 2.1 - Normal: (semaforo-en 0 *config*)~%")
-(format t "  Resultado: ~A~%" (semaforo-en 0 *config*))
+(format t "Ejemplo 2.1 - Normal: (timer 0 config)~%")
+(format t "  Resultado: ~A~%" (timer 0 config))
 ;; Esperado: ROJO
 
-;; Timestamp 45 -> mitad del rojo
-(format t "Ejemplo 2.2 - Normal: (semaforo-en 45 *config*)~%")
-(format t "  Resultado: ~A~%" (semaforo-en 45 *config*))
+;; Timestamp 46 -> mitad del rojo
+(format t "Ejemplo 2.2 - Normal: (timer 46 config)~%")
+(format t "  Resultado: ~A~%" (timer 46 config))
 ;; Esperado: ROJO
 
-;; Timestamp 90 -> comienza verde
-(format t "Ejemplo 2.3 - Normal: (semaforo-en 90 *config*)~%")
-(format t "  Resultado: ~A~%" (semaforo-en 90 *config*))
+;; Timestamp 93 -> comienza verde
+(format t "Ejemplo 2.3 - Normal: (timer 93 config)~%")
+(format t "  Resultado: ~A~%" (timer 93 config))
 ;; Esperado: VERDE
 
 ;; Timestamp 150 -> mitad del verde
-(format t "Ejemplo 2.4 - Normal: (semaforo-en 150 *config*)~%")
-(format t "  Resultado: ~A~%" (semaforo-en 150 *config*))
+(format t "Ejemplo 2.4 - Normal: (timer 150 config)~%")
+(format t "  Resultado: ~A~%" (timer 150 config))
 ;; Esperado: VERDE
 
-;; Timestamp 210 -> comienza amarillo
-(format t "Ejemplo 2.5 - Normal: (semaforo-en 210 *config*)~%")
-(format t "  Resultado: ~A~%" (semaforo-en 210 *config*))
+;; Timestamp 216 -> comienza amarillo
+(format t "Ejemplo 2.5 - Normal: (timer 216 config)~%")
+(format t "  Resultado: ~A~%" (timer 216 config))
 ;; Esperado: AMARILLO
 
 ;; --- Caminos alternativos ---
-;; Timestamp 216 -> nuevo ciclo, vuelve a rojo (216 mod 216 = 0)
-(format t "Ejemplo 2.6 - Alternativo: (semaforo-en 216 *config*)~%")
-(format t "  Resultado: ~A~%" (semaforo-en 216 *config*))
+;; Timestamp 225 -> nuevo ciclo, vuelve a rojo (225 mod 225 = 0)
+(format t "Ejemplo 2.6 - Alternativo: (timer 225 config)~%")
+(format t "  Resultado: ~A~%" (timer 225 config))
 ;; Esperado: ROJO (nuevo ciclo)
 
 ;; Timestamp grande (1000000) -> funciona con mod
-(format t "Ejemplo 2.7 - Alternativo: (semaforo-en 1000000 *config*)~%")
-(format t "  Resultado: ~A~%" (semaforo-en 1000000 *config*))
-;; 1000000 mod 216 = 64 -> ROJO
+(format t "Ejemplo 2.7 - Alternativo: (timer 1000000 config)~%")
+(format t "  Resultado: ~A~%" (timer 1000000 config))
+;; 1000000 mod 225 = 100 -> VERDE
 
-;; Timestamp 89 -> ultimo segundo de rojo
-(format t "Ejemplo 2.8 - Alternativo: (semaforo-en 89 *config*)~%")
-(format t "  Resultado: ~A~%" (semaforo-en 89 *config*))
+;; Timestamp 92 -> ultimo segundo de rojo
+(format t "Ejemplo 2.8 - Alternativo: (timer 92 config)~%")
+(format t "  Resultado: ~A~%" (timer 92 config))
 ;; Esperado: ROJO (limite del rango)
 
-;; Timestamp 209 -> ultimo segundo de verde
-(format t "Ejemplo 2.9 - Alternativo: (semaforo-en 209 *config*)~%")
-(format t "  Resultado: ~A~%" (semaforo-en 209 *config*))
+;; Timestamp 215 -> ultimo segundo de verde
+(format t "Ejemplo 2.9 - Alternativo: (timer 215 config)~%")
+(format t "  Resultado: ~A~%" (timer 215 config))
 ;; Esperado: VERDE (limite del rango)
 
-;; Timestamp 215 -> ultimo segundo de amarillo
-(format t "Ejemplo 2.10 - Alternativo: (semaforo-en 215 *config*)~%")
-(format t "  Resultado: ~A~%" (semaforo-en 215 *config*))
+;; Timestamp 224 -> ultimo segundo de amarillo
+(format t "Ejemplo 2.10 - Alternativo: (timer 224 config)~%")
+(format t "  Resultado: ~A~%" (timer 224 config))
 ;; Esperado: AMARILLO (ultimo segundo antes de reiniciar)
 
 ;; --- Casos de error ---
 ;; Timestamp negativo: mod con negativos produce resultado dependiente de la implementacion
-(format t "Ejemplo 2.11 - Error: (semaforo-en -1 *config*)~%")
-(format t "  Resultado: ~A~%" (semaforo-en -1 *config*))
+(format t "Ejemplo 2.11 - Error: (timer -1 config)~%")
+(format t "  Resultado: ~A~%" (timer -1 config))
 ;; Resultado depende del comportamiento de MOD con negativos en SBCL
 
 ;; Sin config: genera error de tipo
-(format t "Ejemplo 2.12 - Error: (semaforo-en 100 nil) -> config vacia~%")
-(format t "  Al ejecutar (semaforo-en 100 nil) se genera:~%")
+(format t "Ejemplo 2.12 - Error: (timer 100 nil) -> config vacia~%")
+(format t "  Al ejecutar (timer 100 nil) se genera:~%")
 (format t "  ERROR: The value NIL is not of type NUMBER~%~%")
 
 
 ;;==============================================================
-;; REQUERIMIENTO 3: mostrarCambio (auditoria)
-;; Funcion: (mostrarCambio tiempo colorAnterior colorNuevo)
+;; REQUERIMIENTO 3: mostrar-cambio (auditoria)
+;; Funcion: (mostrar-cambio tiempo colorAnterior colorNuevo)
 ;;==============================================================
 
-(format t "~%--- REQUERIMIENTO 3: mostrarCambio (auditoria) ---~%~%")
+(format t "~%--- REQUERIMIENTO 3: mostrar-cambio (auditoria) ---~%~%")
 
 ;; --- Funcionamiento normal ---
-(format t "Ejemplo 3.1 - Normal: (mostrarCambio 1718574062 'rojo 'verde)~%")
+(format t "Ejemplo 3.1 - Normal: (mostrar-cambio 1718574062 'rojo 'verde)~%")
 (format t "  Resultado: ")
-(mostrarCambio 1718574062 'rojo 'verde)
+(mostrar-cambio 1718574062 'rojo 'verde)
 ;; Esperado: Tiempo 1718574062: la luz ha cambiado de ROJO a VERDE
 
-(format t "Ejemplo 3.2 - Normal: (mostrarCambio 1718574152 'verde 'amarillo)~%")
+(format t "Ejemplo 3.2 - Normal: (mostrar-cambio 1718574152 'verde 'amarillo)~%")
 (format t "  Resultado: ")
-(mostrarCambio 1718574152 'verde 'amarillo)
+(mostrar-cambio 1718574152 'verde 'amarillo)
 ;; Esperado: Tiempo 1718574152: la luz ha cambiado de VERDE a AMARILLO
 
-(format t "Ejemplo 3.3 - Normal: (mostrarCambio 1718574158 'amarillo 'rojo)~%")
+(format t "Ejemplo 3.3 - Normal: (mostrar-cambio 1718574158 'amarillo 'rojo)~%")
 (format t "  Resultado: ")
-(mostrarCambio 1718574158 'amarillo 'rojo)
+(mostrar-cambio 1718574158 'amarillo 'rojo)
 ;; Esperado: Tiempo 1718574158: la luz ha cambiado de AMARILLO a ROJO
 
 ;; --- Caminos alternativos ---
-;; Uso combinado con semaforo-en para registrar un cambio real
-(format t "Ejemplo 3.4 - Alternativo: Combinar con semaforo-en~%")
-(let ((color-en-89 (semaforo-en 89 *config*))
-      (color-en-90 (semaforo-en 90 *config*)))
-  (format t "  Color en t=89: ~A | Color en t=90: ~A~%" color-en-89 color-en-90)
+;; Uso combinado con timer para registrar un cambio real
+(format t "Ejemplo 3.4 - Alternativo: Combinar con timer~%")
+(let ((color-en-92 (timer 92 config))
+      (color-en-93 (timer 93 config)))
+  (format t "  Color en t=92: ~A | Color en t=93: ~A~%" color-en-92 color-en-93)
   (format t "  Registro: ")
-  (mostrarCambio 90 color-en-89 color-en-90))
+  (mostrar-cambio 93 color-en-92 color-en-93))
 ;; Muestra el cambio detectado en el limite rojo->verde
 
 ;; --- Casos de error ---
 ;; Sin argumentos: genera error por falta de parametros
-(format t "Ejemplo 3.5 - Error: (mostrarCambio) -> sin argumentos~%")
-(format t "  Al ejecutar (mostrarCambio) se genera:~%")
+(format t "Ejemplo 3.5 - Error: (mostrar-cambio) -> sin argumentos~%")
+(format t "  Al ejecutar (mostrar-cambio) se genera:~%")
 (format t "  ERROR: invalid number of arguments: 0~%~%")
 
 
 ;;==============================================================
-;; REQUERIMIENTO 4a: duracionCiclo
-;; Funcion: (duracionCiclo config)
+;; REQUERIMIENTO 4a: duracion-ciclo
+;; Funcion: (duracion-ciclo config)
 ;;==============================================================
 
-(format t "~%--- REQUERIMIENTO 4a: duracionCiclo ---~%~%")
+(format t "~%--- REQUERIMIENTO 4a: duracion-ciclo ---~%~%")
 
 ;; --- Funcionamiento normal ---
-;; Con la config por defecto: 90 + 6 + 120 = 216
-(format t "Ejemplo 4a.1 - Normal: (duracionCiclo *config*)~%")
-(format t "  Resultado: ~A segundos~%" (duracionCiclo *config*))
-;; Esperado: 216
+;; Con la config por defecto: 93 + 9 + 123 = 225
+(format t "Ejemplo 4a.1 - Normal: (duracion-ciclo config)~%")
+(format t "  Resultado: ~A segundos~%" (duracion-ciclo config))
+;; Esperado: 225
 
 ;; --- Caminos alternativos ---
 ;; Con una configuracion personalizada (tiempos cortos)
 (format t "Ejemplo 4a.2 - Alternativo: Config personalizada (10, 3, 15)~%")
 (let ((config-corta '((:rojo . 10) (:amarillo . 3) (:verde . 15))))
-  (format t "  (duracionCiclo config-corta) = ~A segundos~%"
-          (duracionCiclo config-corta)))
+  (format t "  (duracion-ciclo config-corta) = ~A segundos~%"
+          (duracion-ciclo config-corta)))
 ;; Esperado: 28
 
 ;; Con una configuracion de tiempos largos
 (format t "Ejemplo 4a.3 - Alternativo: Config personalizada (60, 5, 80)~%")
 (let ((config-larga '((:rojo . 60) (:amarillo . 5) (:verde . 80))))
-  (format t "  (duracionCiclo config-larga) = ~A segundos~%"
-          (duracionCiclo config-larga)))
+  (format t "  (duracion-ciclo config-larga) = ~A segundos~%"
+          (duracion-ciclo config-larga)))
 ;; Esperado: 145
 
 ;; --- Casos de error ---
 ;; Config vacia: genera error de tipo al intentar sumar nil
-(format t "Ejemplo 4a.4 - Error: (duracionCiclo nil) -> config vacia~%")
-(format t "  Al ejecutar (duracionCiclo nil) se genera:~%")
+(format t "Ejemplo 4a.4 - Error: (duracion-ciclo nil) -> config vacia~%")
+(format t "  Al ejecutar (duracion-ciclo nil) se genera:~%")
 (format t "  ERROR: The value NIL is not of type NUMBER~%~%")
 
 
 ;;==============================================================
-;; REQUERIMIENTO 4b: recomendacionCiclo
-;; Funcion: (recomendacionCiclo duracion)
+;; REQUERIMIENTO 4b: recomendacion-ciclo
+;; Funcion: (recomendacion-ciclo duracion)
 ;; Rango optimo: 35 a 150 segundos
 ;;==============================================================
 
-(format t "~%--- REQUERIMIENTO 4b: recomendacionCiclo ---~%~%")
+(format t "~%--- REQUERIMIENTO 4b: recomendacion-ciclo ---~%~%")
 
 ;; --- Funcionamiento normal ---
-;; Duracion dentro del rango (config por defecto = 216 -> fuera de rango)
-(format t "Ejemplo 4b.1 - Normal: (recomendacionCiclo (duracionCiclo *config*))~%")
-(format t "  Duracion actual: ~A~%" (duracionCiclo *config*))
-(format t "  Resultado: ~A~%" (recomendacionCiclo (duracionCiclo *config*)))
-;; Esperado: "Ciclo demasiado largo" (216 > 150)
+;; Duracion dentro del rango (config por defecto = 225 -> fuera de rango)
+(format t "Ejemplo 4b.1 - Normal: (recomendacion-ciclo (duracion-ciclo config))~%")
+(format t "  Duracion actual: ~A~%" (duracion-ciclo config))
+(format t "  Resultado: ~A~%" (recomendacion-ciclo (duracion-ciclo config)))
+;; Esperado: "Ciclo demasiado largo" (225 > 150)
 
 ;; Duracion dentro del rango optimo
-(format t "Ejemplo 4b.2 - Normal: (recomendacionCiclo 100)~%")
-(format t "  Resultado: ~A~%" (recomendacionCiclo 100))
+(format t "Ejemplo 4b.2 - Normal: (recomendacion-ciclo 100)~%")
+(format t "  Resultado: ~A~%" (recomendacion-ciclo 100))
 ;; Esperado: "Ciclo dentro del rango recomendado"
 
 ;; --- Caminos alternativos ---
 ;; Justo en el limite inferior (35)
-(format t "Ejemplo 4b.3 - Alternativo: (recomendacionCiclo 35)~%")
-(format t "  Resultado: ~A~%" (recomendacionCiclo 35))
+(format t "Ejemplo 4b.3 - Alternativo: (recomendacion-ciclo 35)~%")
+(format t "  Resultado: ~A~%" (recomendacion-ciclo 35))
 ;; Esperado: "Ciclo dentro del rango recomendado"
 
 ;; Justo en el limite superior (150)
-(format t "Ejemplo 4b.4 - Alternativo: (recomendacionCiclo 150)~%")
-(format t "  Resultado: ~A~%" (recomendacionCiclo 150))
+(format t "Ejemplo 4b.4 - Alternativo: (recomendacion-ciclo 150)~%")
+(format t "  Resultado: ~A~%" (recomendacion-ciclo 150))
 ;; Esperado: "Ciclo dentro del rango recomendado"
 
 ;; Debajo del limite (demasiado corto)
-(format t "Ejemplo 4b.5 - Alternativo: (recomendacionCiclo 20)~%")
-(format t "  Resultado: ~A~%" (recomendacionCiclo 20))
+(format t "Ejemplo 4b.5 - Alternativo: (recomendacion-ciclo 20)~%")
+(format t "  Resultado: ~A~%" (recomendacion-ciclo 20))
 ;; Esperado: "Ciclo demasiado corto"
 
 ;; Encima del limite (demasiado largo)
-(format t "Ejemplo 4b.6 - Alternativo: (recomendacionCiclo 200)~%")
-(format t "  Resultado: ~A~%" (recomendacionCiclo 200))
+(format t "Ejemplo 4b.6 - Alternativo: (recomendacion-ciclo 200)~%")
+(format t "  Resultado: ~A~%" (recomendacion-ciclo 200))
 ;; Esperado: "Ciclo demasiado largo"
 
 ;; --- Casos de error ---
 ;; Con un string en vez de numero
-(format t "Ejemplo 4b.7 - Error: (recomendacionCiclo \"abc\") -> tipo invalido~%")
-(format t "  Al ejecutar (recomendacionCiclo \"abc\") se genera:~%")
+(format t "Ejemplo 4b.7 - Error: (recomendacion-ciclo \"abc\") -> tipo invalido~%")
+(format t "  Al ejecutar (recomendacion-ciclo \"abc\") se genera:~%")
 (format t "  ERROR: The value \"abc\" is not of type REAL~%~%")
 
 
 ;;==============================================================
-;; REQUERIMIENTO 5: ciclosPorTiempo
-;; Funcion: (ciclosPorTiempo minutos config)
-;; Con config por defecto: ciclo = 216s
+;; REQUERIMIENTO 5: ciclos-por-tiempo
+;; Funcion: (ciclos-por-tiempo minutos config)
+;; Con config por defecto: ciclo = 225s
 ;;==============================================================
 
-(format t "~%--- REQUERIMIENTO 5: ciclosPorTiempo ---~%~%")
+(format t "~%--- REQUERIMIENTO 5: ciclos-por-tiempo ---~%~%")
 
 ;; --- Funcionamiento normal ---
-;; 15 minutos = 900 segundos / 216 = 4 ciclos completos
-(format t "Ejemplo 5.1 - Normal: (ciclosPorTiempo 15 *config*)~%")
-(format t "  Resultado: ~A ciclos~%" (ciclosPorTiempo 15 *config*))
+;; 15 minutos = 900 segundos / 225 = 4 ciclos completos
+(format t "Ejemplo 5.1 - Normal: (ciclos-por-tiempo 15 config)~%")
+(format t "  Resultado: ~A ciclos~%" (ciclos-por-tiempo 15 config))
 ;; Esperado: 4
 
-;; 60 minutos (1 hora) = 3600 / 216 = 16 ciclos completos
-(format t "Ejemplo 5.2 - Normal: (ciclosPorTiempo 60 *config*)~%")
-(format t "  Resultado: ~A ciclos~%" (ciclosPorTiempo 60 *config*))
+;; 60 minutos (1 hora) = 3600 / 225 = 16 ciclos completos
+(format t "Ejemplo 5.2 - Normal: (ciclos-por-tiempo 60 config)~%")
+(format t "  Resultado: ~A ciclos~%" (ciclos-por-tiempo 60 config))
 ;; Esperado: 16
 
 ;; --- Caminos alternativos ---
-;; 1 minuto = 60 / 216 = 0 ciclos completos
-(format t "Ejemplo 5.3 - Alternativo: (ciclosPorTiempo 1 *config*)~%")
-(format t "  Resultado: ~A ciclos~%" (ciclosPorTiempo 1 *config*))
+;; 1 minuto = 60 / 225 = 0 ciclos completos
+(format t "Ejemplo 5.3 - Alternativo: (ciclos-por-tiempo 1 config)~%")
+(format t "  Resultado: ~A ciclos~%" (ciclos-por-tiempo 1 config))
 ;; Esperado: 0 (no alcanza para completar un ciclo)
 
 ;; 0 minutos
-(format t "Ejemplo 5.4 - Alternativo: (ciclosPorTiempo 0 *config*)~%")
-(format t "  Resultado: ~A ciclos~%" (ciclosPorTiempo 0 *config*))
+(format t "Ejemplo 5.4 - Alternativo: (ciclos-por-tiempo 0 config)~%")
+(format t "  Resultado: ~A ciclos~%" (ciclos-por-tiempo 0 config))
 ;; Esperado: 0
 
 ;; 480 minutos (8 horas, jornada laboral)
-(format t "Ejemplo 5.5 - Alternativo: (ciclosPorTiempo 480 *config*)~%")
-(format t "  Resultado: ~A ciclos~%" (ciclosPorTiempo 480 *config*))
-;; Esperado: 133
+(format t "Ejemplo 5.5 - Alternativo: (ciclos-por-tiempo 480 config)~%")
+(format t "  Resultado: ~A ciclos~%" (ciclos-por-tiempo 480 config))
+;; Esperado: 128
 
 ;; Con config personalizada de ciclo corto (28s)
 (format t "Ejemplo 5.6 - Alternativo: Config corta, 15 minutos~%")
 (let ((config-corta '((:rojo . 10) (:amarillo . 3) (:verde . 15))))
-  (format t "  (ciclosPorTiempo 15 config-corta) = ~A ciclos~%"
-          (ciclosPorTiempo 15 config-corta)))
+  (format t "  (ciclos-por-tiempo 15 config-corta) = ~A ciclos~%"
+          (ciclos-por-tiempo 15 config-corta)))
 ;; Esperado: 32 (900 / 28)
 
 ;; --- Casos de error ---
 ;; Config vacia
-(format t "Ejemplo 5.7 - Error: (ciclosPorTiempo 15 nil) -> config vacia~%")
-(format t "  Al ejecutar (ciclosPorTiempo 15 nil) se genera:~%")
+(format t "Ejemplo 5.7 - Error: (ciclos-por-tiempo 15 nil) -> config vacia~%")
+(format t "  Al ejecutar (ciclos-por-tiempo 15 nil) se genera:~%")
 (format t "  ERROR: The value NIL is not of type NUMBER~%~%")
 
 
 ;;==============================================================
-;; REQUERIMIENTO 6: distribucionHora
-;; Funcion: (distribucionHora config)
+;; REQUERIMIENTO 6: distribucion-hora
+;; Funcion: (distribucion-hora config)
 ;;==============================================================
 
-(format t "~%--- REQUERIMIENTO 6: distribucionHora ---~%~%")
+(format t "~%--- REQUERIMIENTO 6: distribucion-hora ---~%~%")
 
 ;; --- Funcionamiento normal ---
-;; Con config por defecto: rojo=90, amarillo=6, verde=120, total=216
-;; Rojo:     90/216 * 100 = 41.67%
-;; Amarillo:  6/216 * 100 =  2.78%
-;; Verde:   120/216 * 100 = 55.56%
-(format t "Ejemplo 6.1 - Normal: (distribucionHora *config*)~%")
-(format t "  Resultado: ~A~%" (distribucionHora *config*))
-;; Esperado: ((ROJO 41.666668) (AMARILLO 2.7777779) (VERDE 55.555557))
+;; Con config por defecto: rojo=93, amarillo=9, verde=123, total=225
+;; Rojo:     93/225 * 100 = 41.33%
+;; Amarillo:  9/225 * 100 =  4.00%
+;; Verde:   123/225 * 100 = 54.67%
+(format t "Ejemplo 6.1 - Normal: (distribucion-hora config)~%")
+(format t "  Resultado: ~A~%" (distribucion-hora config))
+;; Esperado: ((ROJO 41.333332) (AMARILLO 4.0) (VERDE 54.666668))
 
 ;; --- Caminos alternativos ---
 ;; Config con tiempos iguales (distribucion uniforme)
 (format t "Ejemplo 6.2 - Alternativo: Config tiempos iguales (60, 60, 60)~%")
 (let ((config-igual '((:rojo . 60) (:amarillo . 60) (:verde . 60))))
-  (format t "  (distribucionHora config-igual) = ~A~%"
-          (distribucionHora config-igual)))
+  (format t "  (distribucion-hora config-igual) = ~A~%"
+          (distribucion-hora config-igual)))
 ;; Esperado: 33.33% para cada color
 
 ;; Config con un color dominante
 (format t "Ejemplo 6.3 - Alternativo: Config verde dominante (30, 5, 180)~%")
 (let ((config-verde '((:rojo . 30) (:amarillo . 5) (:verde . 180))))
-  (format t "  (distribucionHora config-verde) = ~A~%"
-          (distribucionHora config-verde)))
+  (format t "  (distribucion-hora config-verde) = ~A~%"
+          (distribucion-hora config-verde)))
 ;; Esperado: Rojo ~13.95%, Amarillo ~2.33%, Verde ~83.72%
 
 ;; --- Casos de error ---
 ;; Config vacia
-(format t "Ejemplo 6.4 - Error: (distribucionHora nil) -> config vacia~%")
-(format t "  Al ejecutar (distribucionHora nil) se genera:~%")
+(format t "Ejemplo 6.4 - Error: (distribucion-hora nil) -> config vacia~%")
+(format t "  Al ejecutar (distribucion-hora nil) se genera:~%")
 (format t "  ERROR: The value NIL is not of type NUMBER~%~%")
 
 
 ;;==============================================================
 ;; EJEMPLO INTEGRADOR: Simulacion de un ciclo completo
-;; Combina transicion, semaforo-en y mostrarCambio
+;; Combina transicion, timer y mostrar-cambio
 ;;==============================================================
 
 (format t "~%--- EJEMPLO INTEGRADOR ---~%~%")
 
-(format t "Simulacion de cambios en un ciclo completo (216 segundos):~%~%")
+(format t "Simulacion de cambios en un ciclo completo (225 segundos):~%~%")
 
 ;; Uso de mapcar (funcion de orden superior) en lugar de dolist
 (mapcar (lambda (t-actual)
-          (format t "  t=~3D -> ~A~%" t-actual (semaforo-en t-actual *config*)))
-        '(0 89 90 209 210 215 216))
+          (format t "  t=~3D -> ~A~%" t-actual (timer t-actual config)))
+        '(0 92 93 215 216 224 225))
 
 (format t "~%Registro de transiciones detectadas:~%~%")
 ;; Transiciones explicitas sin bucles ni variables mutables
-(mostrarCambio 0 'inicio (semaforo-en 0 *config*))
-(mostrarCambio 90 (semaforo-en 89 *config*) (semaforo-en 90 *config*))
-(mostrarCambio 210 (semaforo-en 209 *config*) (semaforo-en 210 *config*))
-(mostrarCambio 216 (semaforo-en 215 *config*) (semaforo-en 216 *config*))
+(mostrar-cambio 0 'inicio (timer 0 config))
+(mostrar-cambio 93 (timer 92 config) (timer 93 config))
+(mostrar-cambio 216 (timer 215 config) (timer 216 config))
+(mostrar-cambio 225 (timer 224 config) (timer 225 config))
 
 (format t "~%Resumen del sistema:~%")
-(format t "  Duracion del ciclo: ~A segundos~%" (duracionCiclo *config*))
-(format t "  Recomendacion: ~A~%" (recomendacionCiclo (duracionCiclo *config*)))
-(format t "  Ciclos en 15 min: ~A~%" (ciclosPorTiempo 15 *config*))
-(format t "  Ciclos en 1 hora: ~A~%" (ciclosPorTiempo 60 *config*))
-(format t "  Distribucion: ~A~%" (distribucionHora *config*))
+(format t "  Duracion del ciclo: ~A segundos~%" (duracion-ciclo config))
+(format t "  Recomendacion: ~A~%" (recomendacion-ciclo (duracion-ciclo config)))
+(format t "  Ciclos en 15 min: ~A~%" (ciclos-por-tiempo 15 config))
+(format t "  Ciclos en 1 hora: ~A~%" (ciclos-por-tiempo 60 config))
+(format t "  Distribucion: ~A~%" (distribucion-hora config))
 
 (format t "~%=============================================~%")
 (format t "  FIN DE LOS EJEMPLOS~%")
