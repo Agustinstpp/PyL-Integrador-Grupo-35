@@ -154,3 +154,27 @@
     )
   )
 )
+;; ========================================================
+;; FUNCIÓN: informe
+;; NATURALEZA: Impura (Realiza operaciones de E/S al escribir en un archivo físico)
+;; ESTRATEGIA: Recursiva de Cola (Tail Recursive) para procesar la lista de logs
+;; IMPACTO: No destructiva
+;; ========================================================
+(defun informe (datos)
+  "Extrae el historial de log de los semáforos a un archivo de texto plano."
+  (with-open-file (stream "informe-ejecucion-semaforo.txt"
+                         :direction :output
+                         :if-exists :supersede
+                         :if-does-not-exist :create)
+    (format stream "Informe de Ejecución del Sistema Semafórico~%")
+    (format stream "=========================================~%")
+    
+    ;; Uso de recursividad para cumplir con la restricción de 'Cero Bucles'
+    (labels ((escribir-lineas (lista)
+               (when lista
+                 (format stream "~A~%" (car lista))
+                 (escribir-lineas (cdr lista)))))
+      (escribir-lineas datos))
+      
+    (format stream "~% --- Fin del Informe ---"))
+  (format t "Informe generado exitosamente en 'informe-ejecucion-semaforo.txt'.~%"))
