@@ -31,19 +31,40 @@
 ;; ========================================================
 ;; FUNCION: timer
 ;; NATURALEZA: Pura
-;; ESTRATEGIA: Uso de modulo sobre duracion dinamica
+;; ESTRATEGIA: Uso de modulo sobre duracion dinamica e intermitencia
 ;; IMPACTO: No destructiva
+;; ========================================================
 
 (define (timer timestamp config)
   (let* ((time-rojo (obtener-tiempo config 'rojo))
          (time-verde (obtener-tiempo config 'verde))
          (time-amarillo (obtener-tiempo config 'amarillo))
-         (total (+ time-rojo time-verde time-amarillo))
+         (time-intermitente 3)
+         (total (+ time-rojo
+                   time-intermitente
+                   time-verde
+                   time-intermitente
+                   time-amarillo
+                   time-intermitente))
          (ciclo (modulo timestamp total)))
     (cond
-      ((< ciclo time-rojo) 'rojo)
-      ((< ciclo (+ time-rojo time-verde)) 'verde)
-      (else 'amarillo))))
+      ((< ciclo time-rojo)
+       'rojo)
+
+      ((< ciclo (+ time-rojo time-intermitente))
+       'rojo-intermitente)
+
+      ((< ciclo (+ time-rojo time-intermitente time-verde))
+       'verde)
+
+      ((< ciclo (+ time-rojo time-intermitente time-verde time-intermitente))
+       'verde-intermitente)
+
+      ((< ciclo (+ time-rojo time-intermitente time-verde time-intermitente time-amarillo))
+       'amarillo)
+
+      (else
+       'amarillo-intermitente))))
 
 ;; ========================================================
 ;; PRUEBAS SUGERIDAS
@@ -53,20 +74,11 @@
 ;;  '((rojo . 90)
 ;;    (verde . 120)
 ;;    (amarillo . 6)))
-;; (transicion 'en-rojo 'verde)
-;; Resultado esperado: '(en-rojo cambiar_a_verde)
 
-;; (transicion 'en-rojo 'azul)
-;; Resultado esperado: '(en-rojo accion-por-defecto)
-
-;; (timer 0 config)
-;; Resultado esperado: 'rojo
-
-;; (timer 90 config)
-;; Resultado esperado: 'verde
-
-;; (timer 210 config)
-;; Resultado esperado: 'amarillo
-
-;; (timer 216 config)
-;; Resultado esperado: 'rojo
+;; (timer 0 config)    ; rojo
+;; (timer 90 config)   ; rojo-intermitente
+;; (timer 93 config)   ; verde
+;; (timer 213 config)  ; verde-intermitente
+;; (timer 216 config)  ; amarillo
+;; (timer 222 config)  ; amarillo-intermitente
+;; (timer 225 config)  ; rojo
