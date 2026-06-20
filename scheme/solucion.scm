@@ -61,6 +61,8 @@
 ;;    (verde . 120)
 ;;    (amarillo . 6)))
 
+;; (transicion 'en-rojo 'verde) ; '(en-rojo cambiar_a_verde)
+;; (transicion 'en-rojo 'azul)  ; '(en-rojo accion-por-defecto)
 ;; (timer 0 config)    ; rojo
 ;; (timer 90 config)   ; rojo-intermitente
 ;; (timer 93 config)   ; verde
