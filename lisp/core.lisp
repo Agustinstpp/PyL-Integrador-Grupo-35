@@ -63,7 +63,7 @@
 ;; IMPACTO: No destructiva
 ;==============================================================
 
-(defun semaforo-en (timestamp config)
+(defun timer (timestamp config)
   (let* ((time-rojo     (obtener-tiempo config :rojo))
          (time-verde    (obtener-tiempo config :verde))
          (time-amarillo (obtener-tiempo config :amarillo))
