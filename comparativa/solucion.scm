@@ -19,14 +19,14 @@
 
 (define (transicion color-actual cambiar)
   (cond
-    ((eq? cambiar 'rojo)
-     (list color-actual 'cambiar_a_rojo))
-    ((eq? cambiar 'amarillo)
-     (list color-actual 'cambiar_a_amarillo))
-    ((eq? cambiar 'verde)
-     (list color-actual 'cambiar_a_verde))
+    ((eq? cambiar "rojo")
+     (list color-actual "cambiar-a-rojo"))
+    ((eq? cambiar "amarillo")
+     (list color-actual "cambiar-a-amarillo"))
+    ((eq? cambiar "verde")
+     (list color-actual "cambiar-a-verde"))
     (else
-     (list color-actual 'accion-por-defecto))))
+     (list color-actual "accion-por-defecto"))))
 
 ;; ========================================================
 ;; FUNCION: timer
@@ -45,12 +45,12 @@
                    time-amarillo time-intermitente))
          (ciclo (modulo timestamp total)))
     (cond
-      ((< ciclo time-rojo) 'rojo)
-      ((< ciclo (+ time-rojo time-intermitente)) 'rojo-intermitente)
-      ((< ciclo (+ time-rojo time-intermitente time-verde)) 'verde)
-      ((< ciclo (+ time-rojo time-intermitente time-verde time-intermitente)) 'verde-intermitente)
-      ((< ciclo (+ time-rojo time-intermitente time-verde time-intermitente time-amarillo)) 'amarillo)
-      (else 'amarillo-intermitente))))
+      ((< ciclo time-rojo) "rojo")
+      ((< ciclo (+ time-rojo time-intermitente)) "rojo-intermitente")
+      ((< ciclo (+ time-rojo time-intermitente time-verde)) "verde")
+      ((< ciclo (+ time-rojo time-intermitente time-verde time-intermitente)) "verde-intermitente")
+      ((< ciclo (+ time-rojo time-intermitente time-verde time-intermitente time-amarillo)) "amarillo")
+      (else "amarillo-intermitente"))))
 ;; ========================================================
 ;; FUNCIÓN: informe
 ;; NATURALEZA: Impura (Efectos secundarios de escritura en archivo)
