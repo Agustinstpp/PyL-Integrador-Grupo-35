@@ -4,8 +4,7 @@
 ;; la lectura dinamica de tiempos desde un archivo .json externo
 ;;==============================================================
 
-; Modificar esta linea de acuerdo a la ruta correspondiente de su equipo, reemplazando "user"
-(load "C:/Users/user/quicklisp/setup.lisp")
+(load (merge-pathnames "quicklisp/setup.lisp" (user-homedir-pathname)))
 
 (ql:quickload "cl-json" :silent t)
 
