@@ -61,6 +61,17 @@
 ;;    (verde . 120)
 ;;    (amarillo . 6)))
 
+;; Pruebas de transicion
+;; (transicion 'en-rojo 'verde)
+;; Resultado esperado: '(en-rojo cambiar_a_verde)
+
+;; (transicion 'en-verde 'amarillo)
+;; Resultado esperado: '(en-verde cambiar_a_amarillo)
+
+;; (transicion 'en-rojo 'azul)
+;; Resultado esperado: '(en-rojo accion-por-defecto)
+
+;; Pruebas de timer
 ;; (timer 0 config)    ; rojo
 ;; (timer 90 config)   ; rojo-intermitente
 ;; (timer 93 config)   ; verde
