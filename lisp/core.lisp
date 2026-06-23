@@ -4,9 +4,27 @@
 ;; la lectura dinamica de tiempos desde un archivo .json externo
 ;;==============================================================
 
-(load (merge-pathnames "quicklisp/setup.lisp" (user-homedir-pathname)))
+;;; Carga de Quicklisp y cl-json
+;;; Si Quicklisp no esta instalado, se instala automaticamente
+;;; usando el archivo quicklisp.lisp incluido en el proyecto.
+;;; Si ya esta instalado, simplemente lo carga.
+(let ((quicklisp-init (merge-pathnames "quicklisp/setup.lisp"
+                                       (user-homedir-pathname))))
+  ;;; Si Quicklisp ya esta instalado, cargarlo directamente
+  (if (probe-file quicklisp-init)
+      (load quicklisp-init)
+      ;;; Si no esta instalado, ejecutar el instalador
+      ;;; que se encuentra en el directorio del proyecto
+      (progn
+        (load "quicklisp.lisp")
+        (funcall (intern "INSTALL" :quicklisp-quickstart)))))
+;;; Una vez cargado Quicklisp, instalar/cargar cl-json
+(when (find-package :ql)
+  (funcall (intern "QUICKLOAD" :ql) "cl-json" :silent t))
 
-(ql:quickload "cl-json" :silent t)
+;;; Evita conflicto con el simbolo timer de paquetes externos
+;;; creando un simbolo local en el paquete actual.
+(shadow 'timer)
 
 ;==============================================================
 ;; FUNCION: cargar-config
@@ -29,7 +47,7 @@
 ;==============================================================
 
 (defun obtener-tiempo (config color)
-  (cdr (assoc color config))
+  (rest (assoc color config))
 )
 
 ;==============================================================
@@ -41,12 +59,18 @@
 
 (defun transicion (color-actual cambiar)
   (cond
-    ((eq cambiar 'rojo)
-     (list color-actual "cambiar-a-rojo"))
-    ((eq cambiar 'amarillo)
-     (list color-actual "cambiar-a-amarillo"))
-    ((eq cambiar 'verde)
+    ((and (eq color-actual 'rojo) (eq cambiar 'rojo-intermitente))
+     (list color-actual "cambiar-a-rojo-intermitente"))
+    ((and (eq color-actual 'rojo-intermitente) (eq cambiar 'verde))
      (list color-actual "cambiar-a-verde"))
+    ((and (eq color-actual 'verde) (eq cambiar 'verde-intermitente))
+     (list color-actual "cambiar-a-verde-intermitente"))
+    ((and (eq color-actual 'verde-intermitente) (eq cambiar 'amarillo))
+     (list color-actual "cambiar-a-amarillo"))
+    ((and (eq color-actual 'amarillo) (eq cambiar 'amarillo-intermitente))
+     (list color-actual "cambiar-a-amarillo-intermitente"))
+    ((and (eq color-actual 'amarillo-intermitente) (eq cambiar 'rojo))
+     (list color-actual "cambiar-a-rojo"))
     (t
      (list color-actual 'accion-por-defecto))
   )
@@ -56,19 +80,27 @@
 ;; FUNCION: timer
 ;; NATURALEZA: Pura
 ;; ESTRATEGIA: Uso de operador MOD sobre duracion dinamica
+;;    Recursion de cola con acumulador, recorriendo
+;;    las fases obtenidas dinamicamente del config via MAPCAR.
+;;    A diferencia de la version principal (basada en COND),
+;;    esta variante no requiere modificacion al agregar nuevas
+;;    fases al archivo de configuracion.
 ;; IMPACTO: No destructiva
 ;==============================================================
 
 (defun timer (timestamp config)
-  (let* ((time-rojo     (obtener-tiempo config :rojo))
-         (time-verde    (obtener-tiempo config :verde))
-         (time-amarillo (obtener-tiempo config :amarillo))
-         (total      (+ time-rojo time-verde time-amarillo))
-         (ciclo      (mod timestamp total)))
-    (cond
-      ((< ciclo time-rojo) 'rojo)
-      ((< ciclo (+ time-rojo time-verde)) 'verde)
-      (t 'amarillo)
+  (let ((ciclo (mod timestamp (duracion-ciclo config)))
+        (fases (mapcar #'first config)))
+    (labels ((buscar-fase (restantes acum)
+                (let ((nuevo (+ acum (obtener-tiempo config (first restantes)))))
+                  (if (< ciclo nuevo)
+                      (first restantes)
+                      (buscar-fase (rest restantes) nuevo)
+                  )
+                )
+              )
+            )
+      (buscar-fase fases 0)
     )
   )
 )
@@ -80,25 +112,28 @@
 ;; IMPACTO: No destructiva
 ;==============================================================
 
-(defun mostrar-cambio (tiempo colorAnt colorNue)
+(defun mostrar-cambio (tiempo color-anterior color-nuevo)
   (format t
           "Tiempo ~A: la luz ha cambiado de ~A a ~A~%"
           tiempo
-          colorAnt
-          colorNue)
+          color-anterior
+          color-nuevo)
 )
 
 ;==============================================================
 ;; FUNCION: duracion-ciclo
 ;; NATURALEZA: Pura
 ;; ESTRATEGIA: Suma de tiempos obtenidos dinamicamente del config
+;; utilizando mapcar para extraer los tiempos, y apply para sumarlos
 ;; IMPACTO: No destructiva
 ;==============================================================
 
 (defun duracion-ciclo (config)
-  (+ (obtener-tiempo config :rojo)
-     (obtener-tiempo config :amarillo)
-     (obtener-tiempo config :verde))
+  (apply #'+ (mapcar (lambda (fase)
+                       (obtener-tiempo config (first fase))
+                      )
+              config)
+  )
 )
 
 ;==============================================================
@@ -139,17 +174,15 @@
 ;==============================================================
 
 (defun distribucion-hora (config)
-  (let* ((time-rojo     (obtener-tiempo config :rojo))
-         (time-amarillo (obtener-tiempo config :amarillo))
-         (time-verde    (obtener-tiempo config :verde))
-         (total      (float (+ time-rojo time-amarillo time-verde))))
-    (list
-      (list 'rojo     (* (/ time-rojo     total) 100))
-      (list 'amarillo (* (/ time-amarillo total) 100))
-      (list 'verde    (* (/ time-verde    total) 100))
+  (let ((total (duracion-ciclo config)) (lista-colores (mapcar #'first config)))
+    (mapcar (lambda (color)
+              (list color (float (* (/ (obtener-tiempo config color) total) 100)))
+            )
+            lista-colores
     )
   )
 )
+
 ;; ========================================================
 ;; FUNCIÓN: informe
 ;; NATURALEZA: Impura (Realiza operaciones de E/S al escribir en un archivo físico)
@@ -169,10 +202,13 @@
     (labels (
              ;; obtener-fecha: lee la fecha y hora actual del sistema operativo.
              ;; get-decoded-time es una funcion nativa de Common Lisp que devuelve
-             ;; 9 valores: segundo, minuto, hora, dia, mes, anio, dia-semana, horario-verano y zona-horaria.
+             ;; 9 valores: segundo, minuto, hora, dia, mes, anio, dia-semana,
+             ;; horario-verano y zona-horaria.
              ;; multiple-value-bind captura los primeros 6 valores en variables locales.
-             ;; format nil retorna un string (sin imprimirlo) con el formato AAAA-MM-DD HH:MM:SS
-             ;; Directiva ~N,'0D: imprime un entero Decimal con N digitos minimos, rellenando con '0' a la izquierda. Ej: (format nil "~2,'0D" 6) -> "06"
+             ;; format nil retorna un string (sin imprimirlo) con el formato
+             ;; AAAA-MM-DD HH:MM:SS
+             ;; Directiva ~N,'0D: imprime un entero Decimal con N digitos minimos
+             ;; rellenando con '0' a la izquierda. Ej: (format nil "~2,'0D" 6) -> "06"
              (obtener-fecha ()
                (multiple-value-bind (seg min hora dia mes anio)
                    (get-decoded-time)
@@ -180,12 +216,12 @@
                          anio mes dia hora min seg)))
 
              ;; escribir-lineas: recorre la lista de logs recursivamente.
-             ;; En cada llamada, escribe la fecha/hora seguida del primer elemento (car),
-             ;; y luego se llama a si misma con el resto de la lista (cdr).
+             ;; En cada llamada, escribe la fecha/hora seguida del primer elemento (first),
+             ;; y luego se llama a si misma con el resto de la lista (rest).
              (escribir-lineas (lista)
                (when lista
-                 (format stream "~A - ~A~%" (obtener-fecha) (car lista))
-                 (escribir-lineas (cdr lista)))))
+                 (format stream "~A - ~A~%" (obtener-fecha) (first lista))
+                 (escribir-lineas (rest lista)))))
       (escribir-lineas datos))
       
     (format stream "~% --- Fin del Informe ---"))
